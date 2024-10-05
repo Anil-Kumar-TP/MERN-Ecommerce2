@@ -24,7 +24,7 @@ export const loginUser = async (req, res) => {
         if (!checkUser) return res.json({ success: false, message: 'no user found.register first!' });
         const checkPasswordMatch = await bcrypt.compare(password, checkUser.password);
         if (!checkPasswordMatch) return res.json({ success: false, message: 'invalid password' });
-        const token = jwt.sign({ id: checkUser._id, role: checkUser.role, email: checkUser.email }, 'CLIENT_SECRET_KEY', {
+        const token = jwt.sign({ id: checkUser._id, role: checkUser.role, email: checkUser.email,userName:checkUser.userName }, 'CLIENT_SECRET_KEY', {
             expiresIn:'60m'
         });
         res.cookie('token', token, { httpOnly: true, secure: false }).json({
@@ -32,7 +32,8 @@ export const loginUser = async (req, res) => {
             user: {
                 email: checkUser.email,
                 role: checkUser.role,
-                id:checkUser._id,
+                id: checkUser._id,
+                userName:checkUser.userName,
          }});
     } catch (error) {
        console.log('error in login controller',error.message);
