@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.route.js'
 import adminProductsRoutes from './routes/admin/products.route.js'
 import shopProductsRoutes from './routes/shop/products.route.js'
+import shopCartRoutes from './routes/shop/cart.route.js'
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/products', adminProductsRoutes);
 app.use('/api/shop/products', shopProductsRoutes);
+app.use('/api/shop/cart', shopCartRoutes);
 
 
 app.listen(PORT, () => {
