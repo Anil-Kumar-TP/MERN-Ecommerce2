@@ -1,9 +1,10 @@
 import ProductFilter from "@/components/shopping-view/Filter";
+import ProductDetailsDialog from "@/components/shopping-view/ProductDetails";
 import ShoppingProductTile from "@/components/shopping-view/ProductTile";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { sortOptions } from "@/config";
-import { fetchAllFilteredProducts } from "@/store/shop/productsSlice";
+import { fetchAllFilteredProducts, fetchProductDetails } from "@/store/shop/productsSlice";
 import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,10 +34,11 @@ function createSearchParamsHelper (filterParams) {
 function ShoppingListing () {
 
     const dispatch = useDispatch();
-    const { productList } = useSelector((state) => state.shopProducts);
+    const { productList, productDetails } = useSelector((state) => state.shopProducts);
     const [filters, setFilters] = useState({});
     const [sort, setSort] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
     function handleSort (value) {
         setSort(value);
@@ -57,6 +59,11 @@ function ShoppingListing () {
         sessionStorage.setItem('filters', JSON.stringify(cpyFilters));
     }
 
+    function handleGetProductDetails (getCurrentProductId) {
+        console.log(getCurrentProductId);
+        dispatch(fetchProductDetails(getCurrentProductId))
+    }
+
     useEffect(() => { // default value on page reload . 
         setSort('price-lowtohigh');
         setFilters(JSON.parse(sessionStorage.getItem('filters')) || {}); // fetch the set values from sessionStorage
@@ -71,8 +78,13 @@ function ShoppingListing () {
 
     useEffect(() => {
         if(filters !== null && sort !== null) dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
-    }, [dispatch,sort,filters]);
+    }, [dispatch, sort, filters]);
+    
+    useEffect(() => {
+        if (productDetails !== null) setOpenDetailsDialog(true);
+    },[productDetails])
 
+    console.log(productDetails);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
@@ -104,13 +116,14 @@ function ShoppingListing () {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4">
                     {productList && productList.length > 0 ? (
                         productList.map((productItem) => {
-                            return <ShoppingProductTile product={productItem} key={productItem._id} />
+                            return <ShoppingProductTile product={productItem} key={productItem._id} handleGetProductDetails={handleGetProductDetails}/>
                         })
                     ) : (
                         null
                     )}
                 </div>
             </div>
+            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails}/>
         </div>
     );
 };
