@@ -4,6 +4,8 @@ import ShoppingProductTile from "@/components/shopping-view/ProductTile";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { sortOptions } from "@/config";
+import { useToast } from "@/hooks/use-toast";
+import { addToCart, fetchCartItems } from "@/store/shop/cartSlice";
 import { fetchAllFilteredProducts, fetchProductDetails } from "@/store/shop/productsSlice";
 import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -35,10 +37,12 @@ function ShoppingListing () {
 
     const dispatch = useDispatch();
     const { productList, productDetails } = useSelector((state) => state.shopProducts);
+    const { user } = useSelector((state) => state.auth);
     const [filters, setFilters] = useState({});
     const [sort, setSort] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+    const { toast } = useToast();
 
     function handleSort (value) {
         setSort(value);
@@ -64,6 +68,16 @@ function ShoppingListing () {
         dispatch(fetchProductDetails(getCurrentProductId))
     }
 
+    function handleAddToCart (getCurrentProductId){
+        console.log(getCurrentProductId, 'addtocart'); // id and not _id bcz it is changed in login controller
+        dispatch(addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 })).then((data) => {
+            if (data?.payload?.success) {
+                dispatch(fetchCartItems(user?.id));
+                toast({title:'product added to cart'})
+            }
+        })
+    }
+
     useEffect(() => { // default value on page reload . 
         setSort('price-lowtohigh');
         setFilters(JSON.parse(sessionStorage.getItem('filters')) || {}); // fetch the set values from sessionStorage
@@ -85,6 +99,7 @@ function ShoppingListing () {
     },[productDetails])
 
     console.log(productDetails);
+    // console.log(cartItems,'cartitems');
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
@@ -116,7 +131,7 @@ function ShoppingListing () {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4">
                     {productList && productList.length > 0 ? (
                         productList.map((productItem) => {
-                            return <ShoppingProductTile product={productItem} key={productItem._id} handleGetProductDetails={handleGetProductDetails}/>
+                            return <ShoppingProductTile product={productItem} key={productItem._id} handleGetProductDetails={handleGetProductDetails} handleAddToCart={handleAddToCart}/>
                         })
                     ) : (
                         null
