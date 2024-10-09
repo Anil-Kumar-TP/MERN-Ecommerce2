@@ -118,7 +118,7 @@ export const deleteCartItem = async (req, res) => {
         }
         cart.items = cart.items.filter(item => item.productId._id.toString() !== productId);
         await cart.save();
-        await Cart.populate({
+        await cart.populate({
             path: "items.productId",
             select: "image title price salePrice"
         });

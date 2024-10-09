@@ -4,8 +4,26 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
+import { addToCart, fetchCartItems } from "@/store/shop/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useToast } from "@/hooks/use-toast";
 
 function ProductDetailsDialog ({ open, setOpen, productDetails }) {
+
+    const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth);
+    const { toast } = useToast();
+
+    function handleAddToCart (getCurrentProductId) {
+        console.log(getCurrentProductId, 'addtocart'); // id and not _id bcz it is changed in login controller
+        dispatch(addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 })).then((data) => {
+            if (data?.payload?.success) {
+                dispatch(fetchCartItems(user?.id));
+                toast({ title: 'product added to cart' })
+            }
+        })
+    }
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className='grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw]'>
@@ -32,7 +50,7 @@ function ProductDetailsDialog ({ open, setOpen, productDetails }) {
                         <span className="text-muted-foreground">(4.5)</span>
                     </div>
                     <div className="mt-5 mb-5">
-                        <Button className='w-full'>Add to cart</Button>
+                        <Button className='w-full' onClick={()=>handleAddToCart(productDetails?._id)}>Add to cart</Button>
                     </div>
                     <Separator />
                     <div className="max-h-[300px] overflow-auto">
