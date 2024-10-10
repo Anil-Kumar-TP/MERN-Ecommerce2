@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllFilteredProducts } from '@/store/shop/productsSlice';
 import ShoppingProductTile from '@/components/shopping-view/ProductTile';
+import { useNavigate } from 'react-router-dom';
 
 const categoriesWithIcon = [
     { id: "men", label: "Men", icon: ShirtIcon },
@@ -31,8 +32,18 @@ function ShoppingHome () {
     const [currentSlide, setCurrentSlide] = useState(0);
     const { productList } = useSelector((state) => state.shopProducts);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const slides = [bannerOne, bannerTwo, bannerThree];
+
+    function handleNavigateToListingPage (getCurrentItem,section) {
+        sessionStorage.removeItem("filters");
+        const currentFilter = {
+            [section]:[getCurrentItem.id] // category:men,category:women,brand:adidas
+        }
+        sessionStorage.setItem("filters", JSON.stringify(currentFilter));
+        navigate('/shop/listing');
+    }
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -67,7 +78,7 @@ function ShoppingHome () {
                     <h2 className='text-3xl font-bold text-center mb-8'>Shop by category</h2>
                     <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
                         {categoriesWithIcon.map((categoryItem) => {
-                            return <Card key={categoryItem.id} className='cursor-pointer hover:shadow-lg transition-shadow'>
+                            return <Card onClick={() => handleNavigateToListingPage(categoryItem,'category')} key={categoryItem.id} className='cursor-pointer hover:shadow-lg transition-shadow'>
                                 <CardContent className='flex flex-col items-center justify-center p-6'>
                                     <categoryItem.icon />
                                     <span className='font-bold'>{categoryItem.label}</span>
@@ -83,7 +94,7 @@ function ShoppingHome () {
                     <h2 className='text-3xl font-bold text-center mb-8'>Shop by brands</h2>
                     <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4'>
                         {brandsWithIcon.map((brandItem) => {
-                            return <Card key={brandItem.id} className='cursor-pointer hover:shadow-lg transition-shadow'>
+                            return <Card onClick={() => handleNavigateToListingPage(brandItem, 'brand')} key={brandItem.id} className='cursor-pointer hover:shadow-lg transition-shadow'>
                                 <CardContent className='flex flex-col items-center justify-center p-6'>
                                     <brandItem.icon />
                                     <span className='font-bold'>{brandItem.label}</span>

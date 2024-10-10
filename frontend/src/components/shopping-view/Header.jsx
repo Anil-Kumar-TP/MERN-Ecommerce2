@@ -1,5 +1,5 @@
 import { HousePlug, LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
-import { Link, useFetcher, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,11 +10,22 @@ import { logoutUser } from "@/store/auth-slice";
 import UserCartWrapper from "./CartWrapper";
 import { useEffect, useState } from "react";
 import { fetchCartItems } from "@/store/shop/cartSlice";
+import { Label } from "../ui/label";
 
 function MenuItems () {
+
+    const navigate = useNavigate();
+
+    function handleNavigate (getCurrentMenuItem) {
+        sessionStorage.removeItem("filters");
+        const currentFilter = getCurrentMenuItem.id !== 'home' ? { category: [getCurrentMenuItem.id] } : null;
+        sessionStorage.setItem("filters", JSON.stringify(currentFilter));
+        navigate(getCurrentMenuItem.path);
+    }
+
     return <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row">
         {shoppingViewHeaderMenuItems.map((menuItem) => {
-            return <Link key={menuItem.id} to={menuItem.path} className="text-sm font-medium">{menuItem.label}</Link>
+            return <Label onClick={()=>handleNavigate(menuItem)} key={menuItem.id} className="text-sm font-medium cursor-pointer">{menuItem.label}</Label> 
         })}
     </nav>
 }
