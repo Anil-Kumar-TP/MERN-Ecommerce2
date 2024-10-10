@@ -6,9 +6,12 @@ import { BabyIcon, CandyCane, Cat, Check, ChevronLeft, ChevronRight, CloudLightn
 import { Card, CardContent } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllFilteredProducts } from '@/store/shop/productsSlice';
+import { fetchAllFilteredProducts, fetchProductDetails } from '@/store/shop/productsSlice';
 import ShoppingProductTile from '@/components/shopping-view/ProductTile';
 import { useNavigate } from 'react-router-dom';
+import { addToCart, fetchCartItems } from '@/store/shop/cartSlice';
+import { useToast } from '@/hooks/use-toast';
+import ProductDetailsDialog from '@/components/shopping-view/ProductDetails';
 
 const categoriesWithIcon = [
     { id: "men", label: "Men", icon: ShirtIcon },
@@ -30,9 +33,12 @@ const brandsWithIcon = [
 function ShoppingHome () {
 
     const [currentSlide, setCurrentSlide] = useState(0);
-    const { productList } = useSelector((state) => state.shopProducts);
+    const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+    const { productList,productDetails } = useSelector((state) => state.shopProducts);
+    const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { toast } = useToast();
 
     const slides = [bannerOne, bannerTwo, bannerThree];
 
@@ -43,6 +49,19 @@ function ShoppingHome () {
         }
         sessionStorage.setItem("filters", JSON.stringify(currentFilter));
         navigate('/shop/listing');
+    }
+
+    function handleGetProductDetails (getCurrentProductId) {
+        dispatch(fetchProductDetails(getCurrentProductId))
+    }
+
+    function handleAddToCart (getCurrentProductId) {
+        dispatch(addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 })).then((data) => {
+            if (data?.payload?.success) {
+                dispatch(fetchCartItems(user?.id));
+                toast({ title: 'product added to cart' })
+            }
+        })
     }
 
     useEffect(() => {
@@ -56,6 +75,10 @@ function ShoppingHome () {
     useEffect(() => {
         dispatch(fetchAllFilteredProducts({ filterParams: {}, sortParams: "price-lowtohigh" }));
     }, [dispatch]);
+
+    useEffect(() => {
+        if (productDetails !== null) setOpenDetailsDialog(true);
+    }, [productDetails])
 
     // console.log(productList,'product list home page');
 
@@ -108,13 +131,14 @@ function ShoppingHome () {
             <section className='py-12'>
                 <div className='container mx-auto px-4'>
                     <h2 className='text-3xl font-bold text-center mb-8'>Featured Products</h2>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 cursor-pointer'>
                         {productList && productList.length > 0 ? productList.map((productItem) => {
-                            return <ShoppingProductTile product={productItem}/>
+                            return <ShoppingProductTile product={productItem} handleGetProductDetails={handleGetProductDetails} handleAddToCart={handleAddToCart}/>
                         }):null}
                     </div>
                 </div>
             </section>
+            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails} />
         </div>
     )
 }
