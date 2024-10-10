@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import { addToCart, fetchCartItems } from "@/store/shop/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "@/hooks/use-toast";
+import { setProductDetails } from "@/store/shop/productsSlice";
 
 function ProductDetailsDialog ({ open, setOpen, productDetails }) {
 
@@ -24,8 +25,13 @@ function ProductDetailsDialog ({ open, setOpen, productDetails }) {
         })
     }
 
+    function handleDialogClose () {
+        setOpen(false);
+        dispatch(setProductDetails());
+    }
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleDialogClose}>
             <DialogContent className='grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw]'>
                 <div className="relative overflow-hidden rounded-lg">
                     <img src={productDetails?.image} alt="detail image" width={600} height={600} className="aspect-square w-full object-cover" />
