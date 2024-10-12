@@ -78,3 +78,31 @@ export const capturePayment = async (req, res) => {
         res.status(500).json({ success: false, message: 'some error occured' });
     }
 }
+
+export const getAllOrdersByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const orders = await Order.find({ userId });
+        if (!orders.length) {
+            return res.status(404).json({ success: false, message: 'no orders found' });
+        }
+        res.status(200).json({ success: true, data: orders });
+    } catch (error) {
+        console.log('error in getAllOrdersByUser controller', error.message);
+        res.status(500).json({ success: true, message: 'error occured' });
+    }
+}
+
+export const getOrderDetails = async (req, res) => {
+    try {
+        const { id } = req.params; //id of particular order
+        const order = await Order.findById(id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'order not found' });
+        }
+        res.status(200).json({ success: true, data: order });
+    } catch (error) {
+       console.log('error in getAllOrderDetails controller', error.message);
+        res.status(500).json({ success: true, message: 'error occured' }); 
+    }
+}
