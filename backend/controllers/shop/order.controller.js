@@ -1,9 +1,10 @@
 import paypal from "../../helpers/PayPal.js";
+import Cart from "../../models/cart.model.js";
 import Order from "../../models/order.model.js";
 
 export const createOrder = async (req, res) => {
     try {
-        const { userId, cartItems, addressInfo, orderStatus, paymentMethod, paymentStatus, totalAmount, orderDate, orderUpdateDate, paymentId, payerId } = req.body;
+        const { userId, cartId, cartItems, addressInfo, orderStatus, paymentMethod, paymentStatus, totalAmount, orderDate, orderUpdateDate, paymentId, payerId } = req.body;
 
         const create_payment_json = {
             intent: 'sale',
@@ -38,7 +39,7 @@ export const createOrder = async (req, res) => {
                 console.log(error);
                 return res.status(500).json({ success: false, message: 'error while creating payment' });
             } else {
-                const newlyCreatedOrder = new Order({ userId, cartItems, addressInfo, orderStatus, paymentMethod, paymentStatus, totalAmount, orderDate, orderUpdateDate, paymentId, payerId });
+                const newlyCreatedOrder = new Order({ userId, cartId, cartItems, addressInfo, orderStatus, paymentMethod, paymentStatus, totalAmount, orderDate, orderUpdateDate, paymentId, payerId });
                 await newlyCreatedOrder.save();
 
                 const approvalURL = paymentInfo.links.find(link => link.rel === 'approval_url').href;
@@ -53,6 +54,24 @@ export const createOrder = async (req, res) => {
 
 export const capturePayment = async (req, res) => {
     try {
+        const { paymentId, payerId, orderId } = req.body;
+        let order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'order not found' });
+        }
+
+        order.paymentStatus = 'paid';
+        order.orderStatus = 'confirmed';
+        order.paymentId = paymentId;
+        order.payerId = payerId;
+
+        const getCartId = order.cartId;
+
+        await Cart.findByIdAndDelete(getCartId);
+
+        await order.save();
+
+        res.status(200).json({ success: true, message: 'order confirmed', data: order });
         
     } catch (error) {
         console.log('error in capturePayment controller');
