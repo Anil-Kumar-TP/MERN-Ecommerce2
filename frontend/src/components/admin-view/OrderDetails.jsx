@@ -4,7 +4,9 @@ import {  DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllOrdersForAdmin, getOrderDetailsForAdmin, updateOrderStatus } from "@/store/admin/orderSlice";
+import { useToast } from "@/hooks/use-toast";
 
 const initialFormData = {
     status: ""
@@ -13,10 +15,21 @@ const initialFormData = {
 function AdminOrderDetailsView ({orderDetails}) {
 
     const [formData, setFormData] = useState(initialFormData);
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
+    const { toast } = useToast();
 
     function handleUpdateStatus (e) {
         e.preventDefault();
+        const { status } = formData;
+        dispatch(updateOrderStatus({ id: orderDetails?._id, orderStatus: status })).then((data) => {
+            if (data?.payload?.success) {
+                dispatch(getOrderDetailsForAdmin(orderDetails?._id))
+                dispatch(getAllOrdersForAdmin())
+                setFormData(initialFormData);
+                toast({ title: 'order status updated' });
+            }
+        })
     }
 
     return (
@@ -46,7 +59,7 @@ function AdminOrderDetailsView ({orderDetails}) {
                     <div className="flex items-center justify-between mt-2">
                         <p className="font-medium">Order Status</p>
                         <Label>
-                            <Badge className={`py-1 px-3 text-center cursor-pointer ${orderDetails?.orderStatus === 'confirmed' ? 'bg-green-500' : 'bg-red-500'}`}>{orderDetails?.orderStatus}</Badge>
+                            <Badge className={`py-1 px-3 text-center cursor-pointer ${orderDetails?.orderStatus === 'confirmed' ? 'bg-green-500' : orderDetails?.orderStatus === 'rejected' ? 'bg-red-500': 'bg-yellow-500'}`}>{orderDetails?.orderStatus}</Badge>
                         </Label>
                     </div>
                 </div>

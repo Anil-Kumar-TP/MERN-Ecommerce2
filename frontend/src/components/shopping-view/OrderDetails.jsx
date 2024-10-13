@@ -35,7 +35,7 @@ function ShoppingOrderDetailsView ({ orderDetails }) {
                     <div className="flex items-center justify-between mt-2">
                         <p className="font-medium">Order Status</p>
                         <Label>
-                            <Badge className={`py-1 px-3 text-center cursor-pointer ${orderDetails?.orderStatus === 'confirmed' ? 'bg-green-500' : 'bg-red-500'}`}>{orderDetails?.orderStatus}</Badge>
+                            <Badge className={`py-1 px-3 text-center cursor-pointer ${orderDetails?.orderStatus === 'confirmed' ? 'bg-green-500' : orderDetails?.orderStatus === 'rejected' ? 'bg-red-500' : 'bg-yellow-500'}`}>{orderDetails?.orderStatus}</Badge>
                         </Label>
                     </div>
                 </div>
