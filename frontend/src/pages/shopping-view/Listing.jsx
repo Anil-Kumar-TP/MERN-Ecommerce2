@@ -44,6 +44,8 @@ function ShoppingListing () {
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
     const { toast } = useToast();
 
+    const categorySearchParam = searchParams.get('category');
+
     function handleSort (value) {
         setSort(value);
     }
@@ -81,7 +83,7 @@ function ShoppingListing () {
     useEffect(() => { // default value on page reload . 
         setSort('price-lowtohigh');
         setFilters(JSON.parse(sessionStorage.getItem('filters')) || {}); // fetch the set values from sessionStorage
-    }, []);
+    }, [categorySearchParam]);
 
     useEffect(() => {
         if (filters && Object.keys(filters).length > 0) {
