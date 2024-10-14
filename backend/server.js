@@ -10,6 +10,7 @@ import shopCartRoutes from './routes/shop/cart.route.js'
 import shopAddressRoutes from './routes/shop/address.route.js'
 import shopOrderRoutes from './routes/shop/order.route.js'
 import adminOrderRoutes from './routes/admin/order.route.js'
+import shopSearchRoutes from './routes/shop/search.route.js'
 
 dotenv.config();
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/shop/cart', shopCartRoutes);
 app.use('/api/shop/address', shopAddressRoutes);
 app.use('/api/shop/order', shopOrderRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
+app.use('/api/shop/search', shopSearchRoutes);
 
 
 app.listen(PORT, () => {
