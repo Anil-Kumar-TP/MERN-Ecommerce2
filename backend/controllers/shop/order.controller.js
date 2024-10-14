@@ -1,6 +1,7 @@
 import paypal from "../../helpers/PayPal.js";
 import Cart from "../../models/cart.model.js";
 import Order from "../../models/order.model.js";
+import Product from "../../models/product.model.js";
 
 export const createOrder = async (req, res) => {
     try {
@@ -64,6 +65,17 @@ export const capturePayment = async (req, res) => {
         order.orderStatus = 'confirmed';
         order.paymentId = paymentId;
         order.payerId = payerId;
+
+        for (let item of order.cartItems) { // once the payment is successful we need to reduce the stocks 
+            let product = await Product.findById(item.productId);
+
+            if (!product) {
+                return res.status(404).json({ success: false, message: `not enough stock for this product ${product.title}` });
+            }
+
+            product.totalStock -= item.quantity
+            await product.save();
+        }
 
         const getCartId = order.cartId;
 
