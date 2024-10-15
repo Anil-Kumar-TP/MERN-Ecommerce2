@@ -12,6 +12,7 @@ import shopOrderRoutes from './routes/shop/order.route.js'
 import adminOrderRoutes from './routes/admin/order.route.js'
 import shopSearchRoutes from './routes/shop/search.route.js'
 import shopReviewRoutes from './routes/shop/review.route.js'
+import commonFeatureRoutes from './routes/common/feature.route.js'
 
 dotenv.config();
 const app = express();
@@ -40,7 +41,7 @@ app.use('/api/shop/order', shopOrderRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
 app.use('/api/shop/search', shopSearchRoutes);
 app.use('/api/shop/review', shopReviewRoutes);
-
+app.use('/api/common/feature', commonFeatureRoutes);
 
 app.listen(PORT, () => {
     connectDB();
