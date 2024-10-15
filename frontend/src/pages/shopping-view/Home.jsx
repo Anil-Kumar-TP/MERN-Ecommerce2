@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
-import bannerOne from '../../assets/banner-1.webp'
-import bannerTwo from '../../assets/banner-2.webp'
-import bannerThree from '../../assets/banner-3.webp'
+// import bannerOne from '../../assets/banner-1.webp'
+// import bannerTwo from '../../assets/banner-2.webp'
+// import bannerThree from '../../assets/banner-3.webp'
 import { BabyIcon, CandyCane, Cat, Check, ChevronLeft, ChevronRight, CloudLightning, Footprints, Milk, Radiation, Shirt, ShirtIcon, WatchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { addToCart, fetchCartItems } from '@/store/shop/cartSlice';
 import { useToast } from '@/hooks/use-toast';
 import ProductDetailsDialog from '@/components/shopping-view/ProductDetails';
+import { getFeaturedImages } from '@/store/common/FeaturedSlice';
 
 const categoriesWithIcon = [
     { id: "men", label: "Men", icon: ShirtIcon },
@@ -39,8 +40,10 @@ function ShoppingHome () {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { toast } = useToast();
+    const { featuredImageList } = useSelector((state) => state.commonFeature);
 
-    const slides = [bannerOne, bannerTwo, bannerThree];
+
+    // const slides = [bannerOne, bannerTwo, bannerThree];
 
     function handleNavigateToListingPage (getCurrentItem,section) {
         sessionStorage.removeItem("filters");
@@ -66,11 +69,11 @@ function ShoppingHome () {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCurrentSlide(prevSlide => (prevSlide + 1) % slides.length);
+            setCurrentSlide(prevSlide => (prevSlide + 1) % featuredImageList.length);
         }, 5000)
         
         return () => clearInterval(timer)
-    }, []);
+    }, [featuredImageList]);
 
     useEffect(() => {
         dispatch(fetchAllFilteredProducts({ filterParams: {}, sortParams: "price-lowtohigh" }));
@@ -80,18 +83,23 @@ function ShoppingHome () {
         if (productDetails !== null) setOpenDetailsDialog(true);
     }, [productDetails])
 
+    useEffect(() => {
+        dispatch(getFeaturedImages());
+    }, [dispatch]);
+
+
     // console.log(productList,'product list home page');
 
     return (
         <div className="flex flex-col min-h-screen">
             <div className="relative w-full h-[600px] overflow-hidden">
-                {slides.map((slide, index) => {
-                    return <img src={slide} alt="slide" key={index} className={`${index === currentSlide ? 'opacity-100' :'opacity-0'} absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`} />
-                })}
-                <Button variant='outline' size='icon' className='absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80' onClick={()=>setCurrentSlide(prevSlide=>(prevSlide - 1 + slides.length) % slides.length)}>
+                {featuredImageList && featuredImageList.length > 0 ? featuredImageList.map((slide, index) => {
+                    return <img src={slide?.image} alt="slide" key={index} className={`${index === currentSlide ? 'opacity-100' :'opacity-0'} absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`} />
+                }):null}
+                <Button variant='outline' size='icon' className='absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80' onClick={()=>setCurrentSlide(prevSlide=>(prevSlide - 1 + featuredImageList.length) % featuredImageList.length)}>
                     <ChevronLeft className='w-4 h-4'/>
                 </Button>
-                <Button variant='outline' size='icon' className='absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80' onClick={() => setCurrentSlide(prevSlide => (prevSlide + 1) % slides.length)}>
+                <Button variant='outline' size='icon' className='absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80' onClick={() => setCurrentSlide(prevSlide => (prevSlide + 1) % featuredImageList.length)}>
                     <ChevronRight className='w-4 h-4'/> 
                 </Button>
             </div>

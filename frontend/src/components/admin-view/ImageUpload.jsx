@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
 
-function ProductImageUpload ({ imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl, setImageLoadingState, imageLoadingState ,isEditMode}) {
+function ProductImageUpload ({ imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl, setImageLoadingState, imageLoadingState ,isEditMode,isCustomStyling=false}) {
 
     const inputRef = useRef(null);
 
@@ -48,7 +48,7 @@ function ProductImageUpload ({ imageFile, setImageFile, uploadedImageUrl, setUpl
     }, [imageFile]);
 
     return (
-        <div className="w-full max-w-md mx-auto mt-4">
+        <div className={`w-full mt-4 ${isCustomStyling ? '' :'max-w-md mx-auto'}`}>
             <Label className='text-lg font-semibold mb-2 block'>Upload Image</Label>
             <div className={`${isEditMode ? 'opacity-60' : '' } border-2 border-dashed rounded-lg p-4`} onDragOver={handleDragOver} onDrop={handleDrop}>
                 <Input id='image-upload' type='file' className='hidden' ref={inputRef} onChange={handleImageFileChange} disabled={isEditMode} />
