@@ -6,8 +6,8 @@ const initialState = {
     reviews: [],
 }
 
-export const addReview = createAsyncThunk('/review/addReview', async (data) => {
-    const response = await axios.post('http://localhost:5000/api/shop/review/add', { data });
+export const addReview = createAsyncThunk('/review/addReview', async (formData) => {
+    const response = await axios.post('http://localhost:5000/api/shop/review/add', formData);
     return response.data;
 })
 
